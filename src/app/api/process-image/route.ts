@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       .toBuffer();
 
     // Return the processed image
-    return new NextResponse(result, {
+    return new NextResponse(result as unknown as BodyInit, {
       headers: {
         'Content-Type': 'image/png',
         'Content-Disposition': 'inline; filename="processed-quote.png"'
