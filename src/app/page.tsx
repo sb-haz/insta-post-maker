@@ -7,14 +7,18 @@ export default function Home() {
   const [processedImage, setProcessedImage] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'upload' | 'type'>('upload');
-  const [transparency, setTransparency] = useState(6);
 
-  const processImage = async (file: File, opacity: number) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setSelectedFile(file);
+    setProcessedImage(null);
     setIsProcessing(true);
+
     try {
       const formData = new FormData();
       formData.append('image', file);
-      formData.append('opacity', opacity.toString());
 
       const response = await fetch('/api/process-image', {
         method: 'POST',
@@ -33,22 +37,6 @@ export default function Home() {
       alert('Failed to process image. Please try again.');
     } finally {
       setIsProcessing(false);
-    }
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setSelectedFile(file);
-    setProcessedImage(null);
-    await processImage(file, transparency);
-  };
-
-  const handleTransparencyChange = async (newTransparency: number) => {
-    setTransparency(newTransparency);
-    if (selectedFile) {
-      await processImage(selectedFile, newTransparency);
     }
   };
 
@@ -168,25 +156,6 @@ export default function Home() {
                   alt="Processed quote"
                   className="w-full h-auto"
                 />
-              </div>
-
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Watermark Transparency: {transparency}%
-                </label>
-                <input
-                  type="range"
-                  min="0"
-                  max="30"
-                  value={transparency}
-                  onChange={(e) => handleTransparencyChange(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-900"
-                  disabled={isProcessing}
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>Less visible</span>
-                  <span>More visible</span>
-                </div>
               </div>
 
               <div className="flex flex-col gap-3">

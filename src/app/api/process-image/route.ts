@@ -8,8 +8,6 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get('image') as File;
-    const opacityParam = formData.get('opacity') as string;
-    const opacity = opacityParam ? parseFloat(opacityParam) / 100 : 0.06;
 
     if (!file) {
       return NextResponse.json(
@@ -56,13 +54,13 @@ export async function POST(request: NextRequest) {
       .resize(CANVAS_SIZE, CANVAS_SIZE, { fit: 'cover' })
       .toBuffer();
 
-    // Apply transparent watermark with user-defined opacity and make it slightly smaller (90% of canvas)
+    // Apply transparent watermark at 5% opacity and make it slightly smaller (90% of canvas)
     const transparentLogoSize = Math.round(CANVAS_SIZE * 0.9);
     const transparentLogo = await sharp(transparentLogoPath)
       .resize(transparentLogoSize, transparentLogoSize, { fit: 'inside' })
       .ensureAlpha()
       .composite([{
-        input: Buffer.from([255, 255, 255, Math.round(255 * opacity)]),
+        input: Buffer.from([255, 255, 255, Math.round(255 * 0.05)]),
         raw: {
           width: 1,
           height: 1,
