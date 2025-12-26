@@ -8,21 +8,17 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'upload' | 'type'>('upload');
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setProcessedImage(null);
-    }
-  };
+    if (!file) return;
 
-  const handleUpload = async () => {
-    if (!selectedFile) return;
-
+    setSelectedFile(file);
+    setProcessedImage(null);
     setIsProcessing(true);
+
     try {
       const formData = new FormData();
-      formData.append('image', selectedFile);
+      formData.append('image', file);
 
       const response = await fetch('/api/process-image', {
         method: 'POST',
@@ -96,42 +92,56 @@ export default function Home() {
                   onChange={handleFileChange}
                   className="hidden"
                   id="file-upload"
+                  disabled={isProcessing}
                 />
                 <label
                   htmlFor="file-upload"
-                  className="cursor-pointer flex flex-col items-center"
+                  className={`flex flex-col items-center ${isProcessing ? 'cursor-wait' : 'cursor-pointer'}`}
                 >
-                  <svg
-                    className="w-16 h-16 text-gray-400 mb-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    />
-                  </svg>
-                  <span className="text-lg font-medium text-gray-700">
-                    {selectedFile ? selectedFile.name : 'Click to upload image'}
-                  </span>
-                  <span className="text-sm text-gray-500 mt-2">
-                    PNG, JPG, or GIF
-                  </span>
+                  {isProcessing ? (
+                    <>
+                      <svg
+                        className="w-16 h-16 text-gray-400 mb-4 animate-spin"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                      <span className="text-lg font-medium text-gray-700">
+                        Processing...
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-16 h-16 text-gray-400 mb-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <span className="text-lg font-medium text-gray-700">
+                        Click to upload image
+                      </span>
+                      <span className="text-sm text-gray-500 mt-2">
+                        PNG, JPG, or GIF
+                      </span>
+                    </>
+                  )}
                 </label>
               </div>
-
-              {selectedFile && (
-                <button
-                  onClick={handleUpload}
-                  disabled={isProcessing}
-                  className="w-full bg-gray-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {isProcessing ? 'Processing...' : 'Create Quote'}
-                </button>
-              )}
             </div>
           ) : (
             <div className="space-y-6">

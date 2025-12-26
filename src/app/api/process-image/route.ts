@@ -46,20 +46,18 @@ export async function POST(request: NextRequest) {
     const yPosition = Math.max(0, Math.round((CANVAS_SIZE - stretchedHeight) / 2));
 
     // Load logos
-    const cornerLogoPath = path.join(process.cwd(), 'public', 'corner-logo.jpg');
+    const cornerLogoPath = path.join(process.cwd(), 'public', 'corner-logo.png');
     const transparentLogoPath = path.join(process.cwd(), 'public', 'transparent-waterpark.png');
 
-    // Get corner logo dimensions (we'll resize it to be reasonable, like 150px width)
-    const cornerLogoSize = 150;
+    // Make corner logo same size as canvas (1080x1080)
     const cornerLogo = await sharp(cornerLogoPath)
-      .resize(cornerLogoSize, null, { fit: 'inside' })
+      .resize(CANVAS_SIZE, CANVAS_SIZE, { fit: 'cover' })
       .toBuffer();
 
-    const cornerLogoMetadata = await sharp(cornerLogo).metadata();
-
-    // Apply transparent watermark at 10% opacity
+    // Apply transparent watermark at 10% opacity and make it slightly smaller (90% of canvas)
+    const transparentLogoSize = Math.round(CANVAS_SIZE * 0.9);
     const transparentLogo = await sharp(transparentLogoPath)
-      .resize(CANVAS_SIZE, CANVAS_SIZE, { fit: 'inside' })
+      .resize(transparentLogoSize, transparentLogoSize, { fit: 'inside' })
       .ensureAlpha()
       .composite([{
         input: Buffer.from([255, 255, 255, Math.round(255 * 0.1)]),
@@ -73,6 +71,9 @@ export async function POST(request: NextRequest) {
       }])
       .toBuffer();
 
+    // Calculate center position for transparent watermark
+    const transparentLogoOffset = Math.round((CANVAS_SIZE - transparentLogoSize) / 2);
+
     // Composite everything together
     const result = await canvas
       .composite([
@@ -82,15 +83,16 @@ export async function POST(request: NextRequest) {
           top: yPosition,
           left: 0
         },
-        // 2. Corner logo in bottom right
-        {
-          input: cornerLogo,
-          top: CANVAS_SIZE - (cornerLogoMetadata.height || 0) - 20,
-          left: CANVAS_SIZE - cornerLogoSize - 20
-        },
-        // 3. Transparent watermark on top
+        // 2. Transparent watermark centered on canvas
         {
           input: transparentLogo,
+          top: transparentLogoOffset,
+          left: transparentLogoOffset,
+          blend: 'over'
+        },
+        // 3. Corner logo overlay (full canvas size, on top of everything)
+        {
+          input: cornerLogo,
           top: 0,
           left: 0,
           blend: 'over'
