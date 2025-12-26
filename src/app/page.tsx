@@ -49,6 +49,11 @@ export default function Home() {
     link.click();
   };
 
+  const handleOpenInNewTab = () => {
+    if (!processedImage) return;
+    window.open(processedImage, '_blank');
+  };
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
       <main className="flex flex-col items-center justify-center text-center px-4 py-8 max-w-2xl w-full">
@@ -153,19 +158,27 @@ export default function Home() {
                 />
               </div>
 
-              <div className="flex gap-4">
-                <button
-                  onClick={handleDownload}
-                  className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-                >
-                  Download
-                </button>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-3">
+                  <button
+                    onClick={handleDownload}
+                    className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={handleOpenInNewTab}
+                    className="flex-1 bg-gray-900 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    Open in New Tab
+                  </button>
+                </div>
                 <button
                   onClick={() => {
                     setProcessedImage(null);
                     setSelectedFile(null);
                   }}
-                  className="flex-1 bg-gray-200 text-gray-900 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition-colors"
+                  className="w-full bg-gray-200 text-gray-900 py-3 px-6 rounded-lg font-medium hover:bg-gray-300 transition-colors"
                 >
                   Create Another
                 </button>

@@ -54,13 +54,13 @@ export async function POST(request: NextRequest) {
       .resize(CANVAS_SIZE, CANVAS_SIZE, { fit: 'cover' })
       .toBuffer();
 
-    // Apply transparent watermark at 10% opacity and make it slightly smaller (90% of canvas)
+    // Apply transparent watermark at 18% opacity and make it slightly smaller (90% of canvas)
     const transparentLogoSize = Math.round(CANVAS_SIZE * 0.9);
     const transparentLogo = await sharp(transparentLogoPath)
       .resize(transparentLogoSize, transparentLogoSize, { fit: 'inside' })
       .ensureAlpha()
       .composite([{
-        input: Buffer.from([255, 255, 255, Math.round(255 * 0.1)]),
+        input: Buffer.from([255, 255, 255, Math.round(255 * 0.18)]),
         raw: {
           width: 1,
           height: 1,
